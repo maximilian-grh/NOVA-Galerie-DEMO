@@ -4,13 +4,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useRef } from "react";
-import Bridge from "../components/Icons/Bridge";
-import Logo from "../components/Icons/Logo";
+import { Logo } from "../components/Icons/Logo";
 import Modal from "../components/Modal";
 import cloudinary from "../utils/cloudinary";
 import getBase64ImageUrl from "../utils/generateBlurPlaceholder";
 import type { ImageProps } from "../utils/types";
 import { useLastViewedPhoto } from "../utils/useLastViewedPhoto";
+import { ArrowDownTrayIcon } from "@heroicons/react/24/outline";
+import downloadPhoto from "../utils/downloadPhoto";
 
 const Home: NextPage = ({ images }: { images: ImageProps[] }) => {
   const router = useRouter();
@@ -27,10 +28,22 @@ const Home: NextPage = ({ images }: { images: ImageProps[] }) => {
     }
   }, [photoId, lastViewedPhoto, setLastViewedPhoto]);
 
+  // Funktion zum Herunterladen eines Ordners von Cloudinary
+  const downloadFolder = () => {
+    // URL des Cloudinary Ordners
+    const folderUrl = `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/utilities/download_folder?path=${process.env.CLOUDINARY_FOLDER}`;
+
+    // Erstellen des Links zum Herunterladen des Ordners
+    const downloadLink = document.createElement("a");
+    downloadLink.href = folderUrl;
+    downloadLink.download = `${process.env.CLOUDINARY_FOLDER}.zip`;
+    downloadLink.click();
+  };
+
   return (
     <>
       <Head>
-        <title>NOVA Kreativagentur - Gallerie</title>
+        <title>NOVA - Galerie DEMO</title>
       </Head>
       <main className="mx-auto max-w-[1960px] p-4">
         {photoId && (
@@ -42,25 +55,31 @@ const Home: NextPage = ({ images }: { images: ImageProps[] }) => {
           />
         )}
         <div className="columns-1 gap-4 sm:columns-2 xl:columns-3 2xl:columns-4">
-          <div className="after:content relative mb-5 flex h-[629px] flex-col items-center justify-end gap-4 overflow-hidden rounded-lg bg-white/10 px-6 pb-16 pt-64 text-center text-white shadow-highlight after:pointer-events-none after:absolute after:inset-0 after:rounded-lg after:shadow-highlight lg:pt-0">
-            <div className="absolute inset-0 flex items-center justify-center opacity-20">
-              <span className="flex max-h-full max-w-full items-center justify-center"></span>
-              <span className="absolute left-0 right-0 bottom-0 h-[400px] bg-gradient-to-b from-black/0 via-black to-black"></span>
+          <div className="after:content relative mb-5 flex h-[629px] flex-col items-center justify-end gap-4 overflow-hidden rounded-2xl bg-[#031f29] px-6 pb-16 pt-64 text-center text-white">
+            <div>
+              <Logo className="h-2/3 w-full object-cover" />
             </div>
-            <div className="text-6xl font-bold">N O V A</div>
-            <h1 className="mt-8 mb-4 text-base font-bold tracking-widest">
-              NOVA x CLIENT
+
+            <h1 className="mt-8 mb-4 text-lg font-bold tracking-widest">
+              Clientname
             </h1>
             <p className="max-w-[40ch] text-white/75 sm:max-w-[32ch]">
-              Dankeschön für die super coole Zusammenarbeit! ☺️
+              Dankeschön für die super coole Zusammenarbeit!
             </p>
+            <button
+              onClick={downloadFolder}
+              className="rounded-full bg-black/50 p-2 text-white/75 backdrop-blur-lg transition hover:bg-black/75 hover:text-white"
+              title="Download fullsize version"
+            >
+              <ArrowDownTrayIcon className="h-5 w-5" />
+            </button>
             <a
-              className="pointer z-10 mt-6 rounded-lg border border-white bg-white px-3 py-2 text-sm font-semibold text-black transition hover:bg-white/10 hover:text-white md:mt-4"
+              className="pointer z-10 mt-6 rounded-full border border-[#9EC1A3] bg-[#9EC1A3] px-5 py-2 text-sm font-semibold text-white transition hover:bg-white/10 hover:text-white md:mt-4"
               href="https://www.google.com/maps/place/wirsindnova.at+-+NOVA+Kreativagentur+OG/@48.2203445,16.09988,10z/data=!3m1!4b1!4m6!3m5!1s0x6503f3e7b720379b:0x4d7194203dbfb8ea!8m2!3d48.2206849!4d16.38006!16s%2Fg%2F11r_tqvjhj"
               target="_blank"
               rel="noreferrer"
             >
-              Uns auf Google bewerten
+              Bewertung hinterlassen
             </a>
           </div>
           {images.map(({ id, public_id, format, blurDataUrl }) => (
